@@ -12,15 +12,15 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.blue[50],
       appBar: AppBar(
-        backgroundColor: Color(0xFFFF4081),
+        backgroundColor: const Color(0xFFFF4081),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Halooo @$username",
-              style: TextStyle(fontSize: 17, color: Colors.deepPurple),
+              style: const TextStyle(fontSize: 17, color: Colors.deepPurple),
             ),
-            Text(
+            const Text(
               "Mau makan apaa",
               style: TextStyle(fontSize: 14, color: Colors.deepPurpleAccent),
             ),
@@ -39,58 +39,66 @@ class HomePage extends StatelessWidget {
                 (route) => false,
               );
             },
-            icon: Icon(Icons.logout_outlined),
+            icon: const Icon(Icons.logout_outlined),
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            Image.network(
-              "https://static.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/p1/916/2025/05/29/PSX_20250529_101311-392770967.jpg",
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: 180,
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Daftar Menu:",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemBuilder: (context, index) {
-                    return _menuList(context, index);
-                  },
-                  itemCount: menuList.length,
-                ),
+      body: Column(
+        children: [
+          // 1. Gambar Banner Responsif: Menggunakan 25% dari tinggi layar
+          Image.network(
+            "https://static.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/p1/916/2025/05/29/PSX_20250529_101311-392770967.jpg",
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.25, // Responsive height
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "Daftar Menu:",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              // 2. GridView Responsif: Menggunakan LayoutBuilder untuk menentukan jumlah kolom
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Hitung jumlah kolom: 3 kolom jika lebar > 600, selain itu 2 kolom
+                  final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      // Rasio aspek item untuk memastikan tombol "Pesan" terlihat
+                      childAspectRatio: 0.75, 
+                    ),
+                    itemBuilder: (context, index) {
+                      return _menuList(context, index);
+                    },
+                    itemCount: menuList.length,
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _menuList(context, int index) {
+  Widget _menuList(BuildContext context, int index) {
     return InkWell(
-      // onTap: () {
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) {
-      //         return OrderPage(index: index);
-      //       },
-      //     ),
-      //   );
-      // },
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return OrderPage(index: index);
+            },
+          ),
+        );
+      },
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -114,47 +122,51 @@ class HomePage extends StatelessWidget {
               child: Image.network(
                 menuList[index].imageUrls[0],
                 fit: BoxFit.cover,
-                height: 90,
+                height: 90, // Tinggi gambar tetap, rasio aspek grid yang mengatur
                 width: double.infinity,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    menuList[index].name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text("Harga : ${menuList[index].price}"),
+            Expanded( // 3. Konten Item Responsif: Mengisi sisa ruang
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      menuList[index].name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1, // Memastikan nama tidak terlalu panjang
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text("Harga : ${menuList[index].price}"),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: const Color(0xFF1E3A8A),
+                    const Spacer(), // Mendorong tombol ke bawah
+                    
+                    // Tombol Pesan Responsif
+                    SizedBox(
+                      width: double.infinity, // Membuat tombol mengisi lebar kartu
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          padding: const EdgeInsets.symmetric(vertical: 8), // Padding lebih kecil agar lebih ringkas
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return OrderPage(index: index);
+                              },
+                            ),
+                          );
+                        },
+                        child: const Text("Pesan"),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return OrderPage(index: index);
-                            },
-                          ),
-                        );
-                      },
-                      child: const Text("Pesan"),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
